@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { PriorityBadge, StatusBadge } from '@/components/ui/Badge'
 import { FilterSelect } from '@/components/tickets/FilterSelect'
+import { DateRangeFilter } from '@/components/tickets/DateRangeFilter'
 import { formatDate, formatHours } from '@/lib/utils'
 import { Plus } from 'lucide-react'
 import type { TicketSummary } from '@/lib/types'
@@ -9,7 +10,7 @@ import type { TicketSummary } from '@/lib/types'
 export default async function TicketsPage({
   searchParams,
 }: {
-  searchParams: { status?: string; company?: string; priority?: string }
+  searchParams: { status?: string; company?: string; priority?: string; project?: string; from?: string; to?: string }
 }) {
   const supabase = await createClient()
 
@@ -28,8 +29,31 @@ export default async function TicketsPage({
   if (searchParams.priority) query = query.eq('priority', searchParams.priority)
   if (searchParams.company)  query = query.eq('company_id', searchParams.company)
 
+  // Filtro por proyecto: pre-busca los ticket_ids que pertenecen al proyecto
+  if (searchParams.project) {
+    const { data: projTickets } = await supabase
+      .from('tickets').select('id').eq('project_id', searchParams.project)
+    const ids = (projTickets ?? []).map((t: any) => t.id)
+    query = ids.length > 0 ? query.in('id', ids) : query.in('id', ['00000000-0000-0000-0000-000000000000'])
+  }
+
+  // Filtro por fecha de creación
+  if (searchParams.from) query = query.gte('created_at', searchParams.from)
+  if (searchParams.to)   query = query.lte('created_at', searchParams.to + 'T23:59:59')
+
   const { data: tickets } = await query
   const { data: companies } = await supabase.from('companies').select('id, name').eq('active', true)
+  const { data: projects }  = await supabase.from('projects').select('id, name').eq('active', true).order('name')
+
+  // Proyecto por ticket (ticket_summary no incluye project)
+  const ticketIds = (tickets ?? []).map((t: any) => t.id)
+  const { data: ticketProjects } = ticketIds.length > 0
+    ? await supabase.from('tickets').select('id, projects(id, name)').in('id', ticketIds).not('project_id', 'is', null)
+    : { data: [] }
+  const projectByTicket: Record<string, string> = {}
+  ;(ticketProjects ?? []).forEach((t: any) => {
+    if (t.projects) projectByTicket[t.id] = t.projects.name
+  })
 
   return (
     <div>
@@ -46,7 +70,7 @@ export default async function TicketsPage({
       </div>
 
       {/* Filtros */}
-      <div className="flex gap-3 mb-4 flex-wrap">
+      <div className="flex gap-3 mb-4 flex-wrap items-center">
         <FilterSelect name="status" label="Estado" current={searchParams.status} options={[
           { value: 'open',           label: 'Abierto' },
           { value: 'in_progress',    label: 'En curso' },
@@ -65,6 +89,10 @@ export default async function TicketsPage({
             (companies ?? []).map(c => ({ value: c.id, label: c.name }))
           } />
         )}
+        <FilterSelect name="project" label="Proyecto" current={searchParams.project} options={
+          (projects ?? []).map(p => ({ value: p.id, label: p.name }))
+        } />
+        <DateRangeFilter from={searchParams.from} to={searchParams.to} />
       </div>
 
       {/* Tabla */}
@@ -75,6 +103,7 @@ export default async function TicketsPage({
               <th className="text-left px-4 py-3 font-medium">#</th>
               <th className="text-left px-4 py-3 font-medium">Título</th>
               <th className="text-left px-4 py-3 font-medium">Empresa / Ambiente</th>
+              <th className="text-left px-4 py-3 font-medium">Proyecto</th>
               <th className="text-left px-4 py-3 font-medium">Módulo</th>
               <th className="text-left px-4 py-3 font-medium">Prioridad</th>
               <th className="text-left px-4 py-3 font-medium">Horas</th>
@@ -100,6 +129,12 @@ export default async function TicketsPage({
                     <p className="text-xs text-gray-400 mt-0.5">{ticket.environment_name}</p>
                   )}
                 </td>
+                <td className="px-4 py-3">
+                  {projectByTicket[ticket.id]
+                    ? <span className="text-xs bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full font-medium">{projectByTicket[ticket.id]}</span>
+                    : <span className="text-gray-300">—</span>
+                  }
+                </td>
                 <td className="px-4 py-3 text-gray-500">{ticket.ebs_module ?? '—'}</td>
                 <td className="px-4 py-3"><PriorityBadge priority={ticket.priority} /></td>
                 <td className="px-4 py-3 text-gray-600">{formatHours(ticket.total_hours)}</td>
@@ -109,7 +144,7 @@ export default async function TicketsPage({
             ))}
             {(!tickets || tickets.length === 0) && (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-gray-400">
+                <td colSpan={9} className="px-4 py-12 text-center text-gray-400">
                   No hay tickets{searchParams.status ? ' con ese filtro' : ''}
                 </td>
               </tr>

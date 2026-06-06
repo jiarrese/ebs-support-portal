@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation'
 import { formatHours, formatCurrency } from '@/lib/utils'
 import ExportCsvButton from '@/components/billing/ExportCsvButton'
 import MonthPicker from '@/components/billing/MonthPicker'
-import type { BillingSummary } from '@/lib/types'
+import BillingCharts from '@/components/charts/BillingCharts'
+import type { BillingSummary, ProjectMonthlySummary } from '@/lib/types'
 
 export default async function BillingPage({
   searchParams
@@ -16,14 +17,23 @@ export default async function BillingPage({
 
   if (profile?.role !== 'consultant') redirect('/tickets')
 
-  // Mes seleccionado (default: mes actual)
+  // Mes seleccionado (default: mes actual en UTC para evitar drift de timezone)
   const currentMonth = searchParams.month ?? new Date().toISOString().slice(0, 7)
   const monthStart = `${currentMonth}-01`
-  const monthEnd = new Date(new Date(monthStart).getFullYear(), new Date(monthStart).getMonth() + 1, 0)
-    .toISOString().slice(0, 10)
+  // Calcula el último día sin parsear el string como Date (evita bug UTC-3 en Argentina)
+  const [y, m] = currentMonth.split('-').map(Number)
+  const lastDay = new Date(y, m, 0).getDate()
+  const monthEnd = `${currentMonth}-${String(lastDay).padStart(2, '0')}`
 
   const { data: billing } = await supabase
     .from('billing_summary')
+    .select('*')
+    .gte('month', monthStart)
+    .lte('month', monthEnd)
+    .order('total_amount', { ascending: false })
+
+  const { data: projectBilling } = await supabase
+    .from('project_monthly_summary')
     .select('*')
     .gte('month', monthStart)
     .lte('month', monthEnd)
@@ -46,6 +56,12 @@ export default async function BillingPage({
           <ExportCsvButton data={billing ?? []} month={currentMonth} />
         </div>
       </div>
+
+      {/* Gráfico */}
+      <BillingCharts
+        billing={billing as BillingSummary[] ?? []}
+        projects={projectBilling as ProjectMonthlySummary[] ?? []}
+      />
 
       {/* Totales */}
       <div className="grid grid-cols-3 gap-4 mb-6">

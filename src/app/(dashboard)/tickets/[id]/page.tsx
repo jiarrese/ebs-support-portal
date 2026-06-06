@@ -5,6 +5,8 @@ import { formatDate, formatDateTime, formatHours } from '@/lib/utils'
 import TicketActions from '@/components/tickets/TicketActions'
 import AddComment from '@/components/tickets/AddComment'
 import AddTimeEntry from '@/components/tickets/AddTimeEntry'
+import TicketAttachments from '@/components/tickets/TicketAttachments'
+import TicketSidebarEditor from '@/components/tickets/TicketSidebarEditor'
 import type { TicketComment, TimeEntry } from '@/lib/types'
 
 export default async function TicketDetailPage({ params }: { params: { id: string } }) {
@@ -18,6 +20,10 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
     .from('ticket_summary').select('*').eq('id', params.id).single()
 
   if (!ticket) notFound()
+
+  // ticket_summary no incluye description ni campos editables — los traemos de la tabla base
+  const { data: ticketBase } = await supabase
+    .from('tickets').select('description, company_id, environment_id, ebs_module, priority, project_id').eq('id', params.id).single()
 
   const { data: comments } = await supabase
     .from('ticket_comments')
@@ -56,9 +62,12 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
           <div className="card p-5">
             <h2 className="text-sm font-medium text-gray-700 mb-3">Descripción</h2>
             <p className="text-sm text-gray-600 whitespace-pre-wrap">
-              {ticket.description ?? 'Sin descripción.'}
+              {ticketBase?.description ?? 'Sin descripción.'}
             </p>
           </div>
+
+          {/* Adjuntos */}
+          <TicketAttachments ticketId={params.id} />
 
           {/* Comentarios */}
           <div className="card p-5">
@@ -93,35 +102,19 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
 
         {/* Sidebar */}
         <div className="space-y-4">
-          {/* Info */}
-          <div className="card p-4 space-y-3 text-sm">
-            <div>
-              <p className="text-xs text-gray-400 mb-0.5">Empresa</p>
-              <p className="font-medium text-gray-800">{ticket.company_name}</p>
-            </div>
-            {ticket.environment_name && (
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">Ambiente</p>
-                <p className="text-gray-700">{ticket.environment_name}</p>
-              </div>
-            )}
-            {ticket.ebs_module && (
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">Módulo</p>
-                <p className="text-gray-700">{ticket.ebs_module}</p>
-              </div>
-            )}
-            {ticket.assigned_to_name && (
-              <div>
-                <p className="text-xs text-gray-400 mb-0.5">Asignado a</p>
-                <p className="text-gray-700">{ticket.assigned_to_name}</p>
-              </div>
-            )}
-            <div>
-              <p className="text-xs text-gray-400 mb-0.5">Creado</p>
-              <p className="text-gray-700">{formatDate(ticket.created_at)}</p>
-            </div>
-          </div>
+          {/* Info editable */}
+          <TicketSidebarEditor
+            ticketId={params.id}
+            companyId={ticketBase?.company_id ?? ''}
+            companyName={ticket.company_name}
+            environmentId={ticketBase?.environment_id ?? null}
+            environmentName={ticket.environment_name}
+            ebsModule={ticketBase?.ebs_module}
+            projectId={ticketBase?.project_id ?? null}
+            assignedToName={ticket.assigned_to_name}
+            createdAt={ticket.created_at}
+            isConsultant={isConsultant}
+          />
 
           {/* Horas (solo consultor) */}
           {isConsultant && (

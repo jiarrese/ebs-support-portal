@@ -5,14 +5,15 @@ import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import {
-  LayoutDashboard, Ticket, Clock, Receipt,
-  Building2, Users, Settings, LogOut, ServerCog
+  Ticket, Clock, Receipt,
+  Building2, LogOut, ServerCog, FolderKanban
 } from 'lucide-react'
 
 const navItems = [
   { href: '/tickets',   label: 'Tickets',     icon: Ticket },
   { href: '/time',      label: 'Horas',       icon: Clock },
   { href: '/billing',   label: 'Facturación', icon: Receipt },
+  { href: '/projects',  label: 'Proyectos',   icon: FolderKanban },
   { href: '/companies', label: 'Empresas',    icon: Building2 },
 ]
 

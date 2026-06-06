@@ -95,6 +95,45 @@ export interface TicketComment {
   profiles?: { full_name: string; role: UserRole }
 }
 
+export interface TicketAttachment {
+  id: string
+  ticket_id: string
+  uploaded_by: string
+  filename: string
+  size_bytes: number
+  mime_type: string
+  storage_path: string
+  created_at: string
+  profiles?: { full_name: string }
+}
+
+export type BillingType = 'hourly' | 'monthly_hours' | 'fixed'
+
+export interface Project {
+  id: string
+  name: string
+  description?: string
+  billing_type: BillingType
+  monthly_hours?: number
+  hourly_rate?: number
+  currency: string
+  active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ProjectMonthlySummary {
+  project_id: string
+  project_name: string
+  billing_type: BillingType
+  budget_hours?: number
+  hourly_rate?: number
+  currency: string
+  month: string
+  used_hours: number
+  total_amount: number
+}
+
 export interface BillingSummary {
   company_id: string
   company_name: string

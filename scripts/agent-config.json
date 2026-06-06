@@ -1,0 +1,26 @@
+{
+  "gmail": {
+    "label": "EBS-Soporte",
+    "senders": [
+      "nora.cumiano@vicentin.com.ar",
+      "gaston.distefano@vicentin.com.ar",
+      "pagos@ukelele.la",
+      "adriana.parodi@ukelele.la",
+      "alejandro.manzur@colossowines.com",
+      "antonela.boschi@colossowines.com",
+      "facturacion@ukelele.la",
+      "lucas@ukelele.la"
+    ],
+    "check_last_hours": 24
+  },
+  "supabase": {
+    "default_priority": "medium",
+    "default_status": "open"
+  },
+  "companies": [
+    { "name": "Buyanor",  "keywords": ["buyanor"] },
+    { "name": "Vicentin", "keywords": ["vicentin"] },
+    { "name": "SOTTANO",  "keywords": ["sottano", "colossowines", "colosso"] },
+    { "name": "UKELELE",  "keywords": ["Ukelele"] }
+  ]
+}
