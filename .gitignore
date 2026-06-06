@@ -42,3 +42,4 @@ next-env.d.ts
 
 # Gmail agent token (contiene credenciales privadas)
 gmail_token.json
+scripts/agent.log

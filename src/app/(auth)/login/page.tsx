@@ -10,6 +10,8 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [mode, setMode] = useState<'login' | 'reset'>('login')
+  const [resetSent, setResetSent] = useState(false)
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault()
@@ -25,6 +27,22 @@ export default function LoginPage() {
     }
   }
 
+  async function handleReset(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    const supabase = createClient()
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
+    })
+    if (error) {
+      setError('No se pudo enviar el email. Verificá la dirección.')
+    } else {
+      setResetSent(true)
+    }
+    setLoading(false)
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm">
@@ -37,48 +55,80 @@ export default function LoginPage() {
             </svg>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">EBS Support Portal</h1>
-          <p className="text-sm text-gray-500 mt-1">Ingresá con tu cuenta</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {mode === 'login' ? 'Ingresá con tu cuenta' : 'Recuperar contraseña'}
+          </p>
         </div>
 
-        {/* Form */}
         <div className="card p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="label">Email</label>
-              <input
-                type="email"
-                className="input"
-                placeholder="tu@email.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="label">Contraseña</label>
-              <input
-                type="password"
-                className="input"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && (
-              <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
-                {error}
+          {/* LOGIN */}
+          {mode === 'login' && (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="label">Email</label>
+                <input type="email" className="input" placeholder="tu@email.com"
+                  value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
               </div>
-            )}
-            <button
-              type="submit"
-              className="btn-primary w-full justify-center"
-              disabled={loading}
-            >
-              {loading ? 'Ingresando...' : 'Ingresar'}
-            </button>
-          </form>
+              <div>
+                <label className="label">Contraseña</label>
+                <input type="password" className="input" placeholder="••••••••"
+                  value={password} onChange={e => setPassword(e.target.value)} required />
+              </div>
+              {error && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {error}
+                </div>
+              )}
+              <button type="submit" className="btn-primary w-full justify-center" disabled={loading}>
+                {loading ? 'Ingresando...' : 'Ingresar'}
+              </button>
+              <button type="button" onClick={() => { setMode('reset'); setError('') }}
+                className="text-sm text-indigo-600 hover:text-indigo-800 w-full text-center mt-1">
+                Olvidé mi contraseña
+              </button>
+            </form>
+          )}
+
+          {/* RESET */}
+          {mode === 'reset' && !resetSent && (
+            <form onSubmit={handleReset} className="space-y-4">
+              <p className="text-sm text-gray-600">
+                Ingresá tu email y te enviamos un link para restablecer la contraseña.
+              </p>
+              <div>
+                <label className="label">Email</label>
+                <input type="email" className="input" placeholder="tu@email.com"
+                  value={email} onChange={e => setEmail(e.target.value)} required autoFocus />
+              </div>
+              {error && (
+                <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                  {error}
+                </div>
+              )}
+              <button type="submit" className="btn-primary w-full justify-center" disabled={loading}>
+                {loading ? 'Enviando...' : 'Enviar link'}
+              </button>
+              <button type="button" onClick={() => { setMode('login'); setError('') }}
+                className="text-sm text-gray-500 hover:text-gray-700 w-full text-center">
+                Volver al login
+              </button>
+            </form>
+          )}
+
+          {/* RESET SENT */}
+          {mode === 'reset' && resetSent && (
+            <div className="text-center space-y-4">
+              <div className="text-4xl">📬</div>
+              <p className="text-sm text-gray-700 font-medium">¡Revisá tu email!</p>
+              <p className="text-sm text-gray-500">
+                Te enviamos un link a <strong>{email}</strong> para restablecer la contraseña.
+              </p>
+              <button onClick={() => { setMode('login'); setResetSent(false) }}
+                className="text-sm text-indigo-600 hover:text-indigo-800">
+                Volver al login
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
