@@ -134,7 +134,7 @@ export default function EditCompanyPage() {
             <input className="input" value={form.tax_id}
               onChange={e => setForm(f => ({ ...f, tax_id: e.target.value }))} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Tarifa por hora *</label>
               <input className="input" type="number" min="0" step="0.01" value={form.hourly_rate}
@@ -217,7 +217,7 @@ export default function EditCompanyPage() {
         {/* Formulario nuevo ambiente */}
         {showEnvForm && (
           <form onSubmit={handleAddEnv} className="space-y-3 pt-3 border-t border-gray-100">
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="label">Nombre *</label>
                 <input className="input text-sm" placeholder="Ej: Producción ACME"

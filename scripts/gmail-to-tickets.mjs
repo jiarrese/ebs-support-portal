@@ -2,9 +2,15 @@
  * Agente: Gmail → Tickets EBS Support Portal
  *
  * Tools integradas:
- *   1. escalar_urgente   → Claude detecta urgencia y asigna prioridad automáticamente
- *   2. buscar_duplicado  → verifica si ya existe un ticket abierto similar antes de crear
- *   3. responder_email   → responde al cliente con el número de ticket creado
+ *   1. escalar_urgente      → Claude detecta urgencia y asigna prioridad automáticamente
+ *   2. buscar_duplicado     → verifica si ya existe un ticket abierto similar antes de crear
+ *   3. responder_email      → responde al cliente con el número de ticket creado
+ *   4. avisos_aprobados     → envía el aviso de creación a los tickets que el consultor aprobó
+ *
+ * El aviso de creación al cliente NO se envía automáticamente: el ticket queda
+ * con notify_client=false hasta que un consultor lo aprueba desde el portal
+ * (check "Aprobar el envío del email de creación al cliente"). Recién ahí esta
+ * corrida (o la siguiente) toma el ticket, envía el reply y marca client_notified_at.
  *
  * Uso manual: node scripts/gmail-to-tickets.mjs
  */
@@ -134,9 +140,23 @@ async function responderEmail(gmailToken, msg, ticketNumber) {
   const data = await res.json()
   if (data.id) {
     log(`    📬  Reply enviado a ${toEmail}`)
+    return true
   } else {
     log(`    ⚠️  No se pudo enviar reply: ${JSON.stringify(data)}`)
+    return false
   }
+}
+
+// ─── Tool 4: Avisos de creación aprobados por el consultor ───────────────────
+
+async function enviarAvisoAprobado(gmailToken, threadId, ticketNumber) {
+  const thread = await gmailGet(gmailToken, `threads/${threadId}?format=full`)
+  const firstMsg = thread.messages?.[0]
+  if (!firstMsg) {
+    log(`    ⚠️  No se encontró el email original del thread ${threadId}`)
+    return false
+  }
+  return responderEmail(gmailToken, firstMsg, ticketNumber)
 }
 
 // ─── Supabase ─────────────────────────────────────────────────────────────────
@@ -158,6 +178,18 @@ async function supabaseInsert(url, key, table, data) {
     body: JSON.stringify(data),
   })
   return res.json()
+}
+
+async function supabaseUpdate(url, key, table, filter, data) {
+  const res = await fetch(`${url}/rest/v1/${table}?${filter}`, {
+    method: 'PATCH',
+    headers: {
+      apikey: key, Authorization: `Bearer ${key}`,
+      'Content-Type': 'application/json', Prefer: 'return=minimal',
+    },
+    body: JSON.stringify(data),
+  })
+  return res.ok
 }
 
 // ─── Tool 2: Buscar duplicado ─────────────────────────────────────────────────
@@ -257,6 +289,28 @@ async function main() {
 
   const gmailToken = await getAccessToken(creds)
 
+  // ── Tool 4: Enviar avisos de creación aprobados pero no enviados aún ────────
+  // Corre siempre, incluso si no hay emails nuevos: el consultor pudo aprobar
+  // un ticket en cualquier momento desde el portal.
+  const pendientes = await supabaseGet(
+    SUPABASE_URL, SUPABASE_KEY, 'tickets',
+    `notify_client=eq.true&client_notified_at=is.null&source_ref=not.is.null&select=id,number,source_ref`
+  )
+
+  if (Array.isArray(pendientes) && pendientes.length > 0) {
+    log(`📤  ${pendientes.length} aviso(s) de creación aprobados para enviar`)
+    for (const ticket of pendientes) {
+      const ok = await enviarAvisoAprobado(gmailToken, ticket.source_ref, ticket.number)
+      if (ok) {
+        await supabaseUpdate(
+          SUPABASE_URL, SUPABASE_KEY, 'tickets', `id=eq.${ticket.id}`,
+          { client_notified_at: new Date().toISOString() }
+        )
+        log(`    ✅  Ticket #${ticket.number}: aviso enviado y marcado`)
+      }
+    }
+  }
+
   // Busca emails en el label o por remitentes
   const hours = config.gmail.check_last_hours
   const since = Math.floor((Date.now() - hours * 3600 * 1000) / 1000)
@@ -348,10 +402,8 @@ async function main() {
     if (Array.isArray(result) && result[0]?.id) {
       const ticket = result[0]
       log(`    ✅  Ticket #${ticket.number} creado: "${ticket.title}" [${ticket.priority}]`)
+      log(`    ⏸️  Aviso de creación pendiente de aprobación del consultor (notify_client=false)`)
       created++
-
-      // ── Tool 3: Responder email ───────────────────────────────────────────
-      await responderEmail(gmailToken, msg, ticket.number)
     } else {
       log(`    ❌  Error al crear ticket: ${JSON.stringify(result)}`)
     }

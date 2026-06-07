@@ -7,6 +7,7 @@ export default function AddComment({ ticketId, isConsultant }: { ticketId: strin
   const router = useRouter()
   const [body, setBody] = useState('')
   const [internal, setInternal] = useState(false)
+  const [sentToClient, setSentToClient] = useState(false)
   const [loading, setLoading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
@@ -17,9 +18,10 @@ export default function AddComment({ ticketId, isConsultant }: { ticketId: strin
     const { data: { user } } = await supabase.auth.getUser()
     await supabase.from('ticket_comments').insert({
       ticket_id: ticketId, author_id: user!.id,
-      body: body.trim(), internal
+      body: body.trim(), internal,
+      sent_to_client: !internal && sentToClient,
     })
-    setBody(''); setInternal(false); setLoading(false)
+    setBody(''); setInternal(false); setSentToClient(false); setLoading(false)
     router.refresh()
   }
 
@@ -31,13 +33,22 @@ export default function AddComment({ ticketId, isConsultant }: { ticketId: strin
         value={body}
         onChange={e => setBody(e.target.value)}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-2">
         {isConsultant && (
-          <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-            <input type="checkbox" checked={internal} onChange={e => setInternal(e.target.checked)}
-              className="rounded border-gray-300 text-indigo-600" />
-            Nota interna (no visible al cliente)
-          </label>
+          <div className="flex items-center gap-4 flex-wrap">
+            <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+              <input type="checkbox" checked={internal} onChange={e => setInternal(e.target.checked)}
+                className="rounded border-gray-300 text-indigo-600" />
+              Nota interna (no visible al cliente)
+            </label>
+            {!internal && (
+              <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <input type="checkbox" checked={sentToClient} onChange={e => setSentToClient(e.target.checked)}
+                  className="rounded border-gray-300 text-indigo-600" />
+                Ya se la envié al cliente por mail
+              </label>
+            )}
+          </div>
         )}
         <button type="submit" className="btn-primary py-1.5 text-xs ml-auto" disabled={loading || !body.trim()}>
           {loading ? 'Enviando...' : 'Comentar'}

@@ -64,6 +64,7 @@ export default async function TimePage({
 
       {/* Tabla */}
       <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
@@ -104,6 +105,7 @@ export default async function TimePage({
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

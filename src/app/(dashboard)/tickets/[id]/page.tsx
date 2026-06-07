@@ -7,6 +7,7 @@ import AddComment from '@/components/tickets/AddComment'
 import AddTimeEntry from '@/components/tickets/AddTimeEntry'
 import TicketAttachments from '@/components/tickets/TicketAttachments'
 import TicketSidebarEditor from '@/components/tickets/TicketSidebarEditor'
+import ClientNotifyCheck from '@/components/tickets/ClientNotifyCheck'
 import type { TicketComment, TimeEntry } from '@/lib/types'
 
 export default async function TicketDetailPage({ params }: { params: { id: string } }) {
@@ -23,7 +24,9 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
 
   // ticket_summary no incluye description ni campos editables — los traemos de la tabla base
   const { data: ticketBase } = await supabase
-    .from('tickets').select('description, company_id, environment_id, ebs_module, priority, project_id').eq('id', params.id).single()
+    .from('tickets')
+    .select('description, company_id, environment_id, ebs_module, priority, project_id, source_ref, notify_client, client_notified_at')
+    .eq('id', params.id).single()
 
   const { data: comments } = await supabase
     .from('ticket_comments')
@@ -43,9 +46,9 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
   return (
     <div className="max-w-4xl">
       {/* Header */}
-      <div className="flex items-start justify-between mb-6 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-3">
         <div>
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span className="text-sm text-gray-400 font-mono">#{ticket.number}</span>
             <PriorityBadge priority={ticket.priority} />
             <StatusBadge status={ticket.status} />
@@ -55,9 +58,9 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
         {isConsultant && <TicketActions ticket={ticket} />}
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main */}
-        <div className="col-span-2 space-y-5">
+        <div className="lg:col-span-2 space-y-5">
           {/* Descripción */}
           <div className="card p-5">
             <h2 className="text-sm font-medium text-gray-700 mb-3">Descripción</h2>
@@ -83,6 +86,9 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
                       <span className="text-sm font-medium text-gray-900">{comment.profiles?.full_name}</span>
                       {comment.internal && (
                         <span className="text-xs bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded">interno</span>
+                      )}
+                      {comment.sent_to_client && (
+                        <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">enviado por mail</span>
                       )}
                       <span className="text-xs text-gray-400">{formatDateTime(comment.created_at)}</span>
                     </div>
@@ -115,6 +121,15 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
             createdAt={ticket.created_at}
             isConsultant={isConsultant}
           />
+
+          {/* Aviso de creación al cliente — solo tickets creados por el agente de mail */}
+          {isConsultant && ticketBase?.source_ref && (
+            <ClientNotifyCheck
+              ticketId={params.id}
+              notifyClient={ticketBase.notify_client}
+              clientNotifiedAt={ticketBase.client_notified_at}
+            />
+          )}
 
           {/* Horas (solo consultor) */}
           {isConsultant && (

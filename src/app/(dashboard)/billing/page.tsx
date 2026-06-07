@@ -46,12 +46,12 @@ export default async function BillingPage({
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Facturación</h1>
           <p className="text-sm text-gray-500 mt-0.5">Resumen de horas por empresa</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
           <MonthPicker currentMonth={currentMonth} />
           <ExportCsvButton data={billing ?? []} month={currentMonth} />
         </div>
@@ -64,7 +64,7 @@ export default async function BillingPage({
       />
 
       {/* Totales */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="card p-4">
           <p className="text-xs text-gray-400 mb-1">Total horas</p>
           <p className="text-2xl font-semibold text-gray-900">{formatHours(totals.hours)}</p>
@@ -81,6 +81,7 @@ export default async function BillingPage({
 
       {/* Tabla */}
       <div className="card overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
@@ -118,6 +119,7 @@ export default async function BillingPage({
             </tfoot>
           )}
         </table>
+        </div>
       </div>
     </div>
   )

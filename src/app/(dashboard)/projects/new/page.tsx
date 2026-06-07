@@ -113,7 +113,7 @@ export default function NewProjectPage() {
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="label">Tarifa/hora {form.billing_type === 'hourly' ? '*' : '(opcional)'}</label>
               <input className="input" type="number" min="0" step="0.01" placeholder="150"

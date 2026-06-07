@@ -52,6 +52,9 @@ export interface Ticket {
   reported_by?: string
   resolved_at?: string
   closed_at?: string
+  source_ref?: string
+  notify_client: boolean
+  client_notified_at?: string
   created_at: string
   updated_at: string
 }
@@ -90,6 +93,7 @@ export interface TicketComment {
   author_id: string
   body: string
   internal: boolean
+  sent_to_client: boolean
   created_at: string
   updated_at: string
   profiles?: { full_name: string; role: UserRole }
