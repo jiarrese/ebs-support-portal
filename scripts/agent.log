@@ -470,3 +470,94 @@
 [2026-06-07T15:30:47.239Z] 📁  Leyendo label: EBS-Soporte
 [2026-06-07T15:30:47.605Z] 📧  0 emails encontrados
 [2026-06-07T15:30:47.606Z] ✅  Nada nuevo.
+[2026-06-07T15:40:46.347Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-07T15:40:47.354Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-07T15:40:47.710Z] 📧  0 emails encontrados
+[2026-06-07T15:40:47.711Z] ✅  Nada nuevo.
+[2026-06-07T15:50:46.306Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-07T15:50:47.335Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-07T15:50:47.760Z] 📧  0 emails encontrados
+[2026-06-07T15:50:47.764Z] ✅  Nada nuevo.
+[2026-06-07T16:00:46.341Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-07T16:00:47.161Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-07T16:00:47.513Z] 📧  0 emails encontrados
+[2026-06-07T16:00:47.514Z] ✅  Nada nuevo.
+[2026-06-07T16:10:46.645Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-07T16:10:48.185Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-07T16:10:48.540Z] 📧  0 emails encontrados
+[2026-06-07T16:10:48.542Z] ✅  Nada nuevo.
+[2026-06-08T11:40:46.875Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T11:40:50.176Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T11:40:50.595Z] 📧  0 emails encontrados
+[2026-06-08T11:40:50.596Z] ✅  Nada nuevo.
+[2026-06-08T11:50:46.309Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T11:50:47.576Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T11:50:47.922Z] 📧  0 emails encontrados
+[2026-06-08T11:50:47.923Z] ✅  Nada nuevo.
+[2026-06-08T12:00:46.347Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:00:47.179Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:00:47.534Z] 📧  0 emails encontrados
+[2026-06-08T12:00:47.535Z] ✅  Nada nuevo.
+[2026-06-08T12:10:46.081Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:10:47.101Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:10:47.481Z] 📧  1 emails encontrados
+[2026-06-08T12:10:47.747Z] 🧵  1 threads únicos
+[2026-06-08T12:10:48.001Z] 🆕  1 threads nuevos para procesar
+[2026-06-08T12:10:48.553Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T12:10:50.431Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T12:10:50.728Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (de6dba8a-0774-40e0-b326-354479fe4148, 6, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 12:13:27.281729+00, 2026-06-08 12:13:27.281729+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T12:10:50.729Z] ✅  Listo. 0 ticket(s) creado(s).
+
+[2026-06-08T12:20:46.170Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:20:47.186Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:20:47.576Z] 📧  1 emails encontrados
+[2026-06-08T12:20:47.850Z] 🧵  1 threads únicos
+[2026-06-08T12:20:48.104Z] 🆕  1 threads nuevos para procesar
+[2026-06-08T12:20:48.643Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T12:20:50.309Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T12:20:50.604Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (e2daf7bc-015e-48ae-9d69-c9a5cb4501d5, 7, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 12:23:27.157521+00, 2026-06-08 12:23:27.157521+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T12:20:50.605Z] ✅  Listo. 0 ticket(s) creado(s).
+
+[2026-06-08T12:30:46.124Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:30:47.083Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:30:47.458Z] 📧  1 emails encontrados
+[2026-06-08T12:30:47.749Z] 🧵  1 threads únicos
+[2026-06-08T12:30:47.999Z] 🆕  1 threads nuevos para procesar
+[2026-06-08T12:30:48.533Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T12:30:50.686Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T12:30:50.956Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (cab6713c-2057-4305-91da-cf5737a08051, 8, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 12:33:27.513401+00, 2026-06-08 12:33:27.513401+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T12:30:50.957Z] ✅  Listo. 0 ticket(s) creado(s).
+
+[2026-06-08T12:40:46.174Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:40:47.761Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:40:48.112Z] 📧  1 emails encontrados
+[2026-06-08T12:40:48.383Z] 🧵  1 threads únicos
+[2026-06-08T12:40:48.639Z] 🆕  1 threads nuevos para procesar
+[2026-06-08T12:40:49.178Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T12:40:57.432Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T12:40:57.766Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (6250b99a-5047-45b1-a9c9-241c9fd94260, 9, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 12:43:34.289737+00, 2026-06-08 12:43:34.289737+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T12:40:57.767Z] ✅  Listo. 0 ticket(s) creado(s).
+
+[2026-06-08T12:50:46.303Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T12:50:47.377Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T12:50:47.713Z] 📧  1 emails encontrados
+[2026-06-08T12:50:47.987Z] 🧵  1 threads únicos
+[2026-06-08T12:50:48.232Z] 🆕  1 threads nuevos para procesar
+[2026-06-08T12:50:48.772Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T12:50:50.687Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T12:50:50.956Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (60eab847-aced-49a6-879a-2475a85d6ebf, 10, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 12:53:27.496246+00, 2026-06-08 12:53:27.496246+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T12:50:50.957Z] ✅  Listo. 0 ticket(s) creado(s).
+
+[2026-06-08T13:00:46.448Z] 🤖 Agente Gmail → Tickets iniciado
+[2026-06-08T13:00:47.600Z] 📁  Leyendo label: EBS-Soporte
+[2026-06-08T13:00:47.941Z] 📧  2 emails encontrados
+[2026-06-08T13:00:48.476Z] 🧵  2 threads únicos
+[2026-06-08T13:00:48.722Z] 🆕  2 threads nuevos para procesar
+[2026-06-08T13:00:49.281Z] 📨  Thread: 19ea74ebe4d6915a | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Rendimientos Mayo 2026
+[2026-06-08T13:00:51.631Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T13:00:52.044Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (10aa3085-a514-4689-8bb9-0001623e8c3a, 11, RV: Rendimientos Mayo 2026, De: Nicole Paoli <pagos@ukelele.la> \nEnviado el: lunes, 8 de jun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 13:03:28.576871+00, 2026-06-08 13:03:28.576871+00, null, 19ea74ebe4d6915a, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T13:00:52.329Z] 📨  Thread: 19ea71f66b7baa76 | De: <jiarrese@ttconsulting.com.ar> | Asunto: RV: Refresh TEST Rosario
+[2026-06-08T13:00:54.381Z]     🧠  Empresa: desconocida | Prioridad: medium (fallback)
+[2026-06-08T13:00:54.616Z]     ❌  Error al crear ticket: {"code":"23502","details":"Failing row contains (c7b8cdb1-0602-4a89-8504-1648cca48c13, 12, RV: Refresh TEST Rosario, De: Nora Cumiano <nora.cumiano@vicentin.com.ar> \nEnviado el: lun..., null, null, null, medium, open, null, b48b546b-047f-4535-acc3-2c41105c2a80, null, null, 2026-06-08 13:03:31.1718+00, 2026-06-08 13:03:31.1718+00, null, 19ea71f66b7baa76, f, null).","hint":null,"message":"null value in column \"company_id\" of relation \"tickets\" violates not-null constraint"}
+[2026-06-08T13:00:54.616Z] ✅  Listo. 0 ticket(s) creado(s).
+

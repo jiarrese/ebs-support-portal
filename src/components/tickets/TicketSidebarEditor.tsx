@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { formatDate, EBS_MODULES } from '@/lib/utils'
-import type { EbsEnvironment, Project } from '@/lib/types'
+import type { Company, EbsEnvironment, Project } from '@/lib/types'
 
 interface Props {
   ticketId: string
@@ -20,7 +20,7 @@ interface Props {
 }
 
 export default function TicketSidebarEditor({
-  ticketId, companyId, companyName,
+  ticketId, companyId: initialCompanyId, companyName,
   environmentId: initialEnvId,
   environmentName,
   ebsModule: initialModule,
@@ -30,12 +30,21 @@ export default function TicketSidebarEditor({
   isConsultant,
 }: Props) {
   const router = useRouter()
+  const [companies, setCompanies] = useState<Company[]>([])
   const [environments, setEnvironments] = useState<EbsEnvironment[]>([])
   const [projects, setProjects] = useState<Project[]>([])
+  const [companyId, setCompanyId] = useState(initialCompanyId)
   const [envId, setEnvId] = useState(initialEnvId ?? '')
   const [module, setModule] = useState(initialModule ?? '')
   const [projectId, setProjectId] = useState(initialProjectId ?? '')
   const [saving, setSaving] = useState(false)
+
+  useEffect(() => {
+    if (!isConsultant) return
+    const supabase = createClient()
+    supabase.from('companies').select('*').eq('active', true).order('name')
+      .then(({ data }) => setCompanies(data ?? []))
+  }, [isConsultant])
 
   useEffect(() => {
     const supabase = createClient()
@@ -46,7 +55,7 @@ export default function TicketSidebarEditor({
       .then(({ data }) => setProjects(data ?? []))
   }, [companyId])
 
-  async function save(updates: { environment_id?: string | null; ebs_module?: string | null; project_id?: string | null }) {
+  async function save(updates: { company_id?: string; environment_id?: string | null; ebs_module?: string | null; project_id?: string | null }) {
     setSaving(true)
     const supabase = createClient()
     await supabase.from('tickets').update(updates).eq('id', ticketId)
@@ -54,12 +63,35 @@ export default function TicketSidebarEditor({
     router.refresh()
   }
 
+  function changeCompany(newCompanyId: string) {
+    if (!newCompanyId || newCompanyId === companyId) return
+    setCompanyId(newCompanyId)
+    setEnvId('')
+    save({ company_id: newCompanyId, environment_id: null })
+  }
+
   return (
     <div className="card p-4 space-y-4 text-sm">
-      {/* Empresa (no editable, el ticket ya está asignado) */}
+      {/* Empresa — editable para consultores */}
       <div>
-        <p className="text-xs text-gray-400 mb-0.5">Empresa</p>
-        <p className="font-medium text-gray-800">{companyName}</p>
+        <p className="text-xs text-gray-400 mb-1">Empresa</p>
+        {isConsultant ? (
+          <select
+            className="input text-sm py-1.5"
+            value={companyId}
+            disabled={saving}
+            onChange={e => changeCompany(e.target.value)}
+          >
+            {!companies.some(c => c.id === companyId) && (
+              <option value={companyId}>{companyName}</option>
+            )}
+            {companies.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        ) : (
+          <p className="font-medium text-gray-800">{companyName}</p>
+        )}
       </div>
 
       {/* Ambiente — editable para consultores */}
