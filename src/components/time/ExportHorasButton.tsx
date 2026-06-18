@@ -58,12 +58,16 @@ async function exportExcel(entries: Entry[], mode: 'detallado' | 'resumido') {
   let headers: string[]
 
   if (mode === 'detallado') {
-    headers = ['Fecha', 'Ticket', 'Empresa', 'Proyecto', 'Descripción', 'Horas', 'Facturable']
-    rows = entries.map(e => [
-      fd(e.entry_date),
+    const sorted = [...entries].sort((a, b) => {
+      const numDiff = (a.tickets?.number ?? 0) - (b.tickets?.number ?? 0)
+      return numDiff !== 0 ? numDiff : a.entry_date.localeCompare(b.entry_date)
+    })
+    headers = ['Ticket', 'Empresa', 'Proyecto', 'Fecha', 'Descripción', 'Horas', 'Facturable']
+    rows = sorted.map(e => [
       `#${e.tickets?.number ?? ''} ${e.tickets?.title ?? ''}`.trim(),
       e.tickets?.companies?.name ?? '—',
       e.tickets?.projects?.name ?? '—',
+      fd(e.entry_date),
       e.description,
       Number(e.hours.toFixed(2)),
       e.billable ? 'Sí' : 'No',
@@ -106,19 +110,23 @@ async function exportPdf(entries: Entry[], mode: 'detallado' | 'resumido') {
   doc.setTextColor(0)
 
   if (mode === 'detallado') {
-    const total = entries.reduce((s, e) => s + e.hours, 0)
-    const body = entries.map(e => [
-      fd(e.entry_date),
+    const sorted = [...entries].sort((a, b) => {
+      const numDiff = (a.tickets?.number ?? 0) - (b.tickets?.number ?? 0)
+      return numDiff !== 0 ? numDiff : a.entry_date.localeCompare(b.entry_date)
+    })
+    const total = sorted.reduce((s, e) => s + e.hours, 0)
+    const body = sorted.map(e => [
       `#${e.tickets?.number ?? ''} ${e.tickets?.title ?? ''}`.trim(),
       e.tickets?.companies?.name ?? '—',
       e.tickets?.projects?.name ?? '—',
+      fd(e.entry_date),
       e.description,
       fh(e.hours),
       e.billable ? 'Sí' : 'No',
     ])
     autoTable(doc, {
       startY: 27,
-      head: [['Fecha', 'Ticket', 'Empresa', 'Proyecto', 'Descripción', 'Horas', 'Fact.']],
+      head: [['Ticket', 'Empresa', 'Proyecto', 'Fecha', 'Descripción', 'Horas', 'Fact.']],
       body,
       foot: [['', '', '', '', 'TOTAL', fh(total), '']],
       styles: { fontSize: 8, cellPadding: 2 },

@@ -27,13 +27,28 @@ export default async function TicketsPage({
 
   if (searchParams.status)   query = query.eq('status', searchParams.status)
   if (searchParams.priority) query = query.eq('priority', searchParams.priority)
-  if (searchParams.company)  query = query.eq('company_id', searchParams.company)
 
-  // Filtro por proyecto: pre-busca los ticket_ids que pertenecen al proyecto
-  if (searchParams.project) {
-    const { data: projTickets } = await supabase
-      .from('tickets').select('id').eq('project_id', searchParams.project)
-    const ids = (projTickets ?? []).map((t: any) => t.id)
+  // ticket_summary no expone company_id ni project_id directamente — filtramos via tickets
+  if (searchParams.company || searchParams.project) {
+    let companyIds: string[] | null = null
+    let projectIds: string[] | null = null
+
+    if (searchParams.company) {
+      const { data } = await supabase.from('tickets').select('id').eq('company_id', searchParams.company)
+      companyIds = (data ?? []).map((t: any) => t.id)
+    }
+    if (searchParams.project) {
+      const { data } = await supabase.from('tickets').select('id').eq('project_id', searchParams.project)
+      projectIds = (data ?? []).map((t: any) => t.id)
+    }
+
+    let ids: string[]
+    if (companyIds && projectIds) {
+      const set = new Set(projectIds)
+      ids = companyIds.filter(id => set.has(id))
+    } else {
+      ids = companyIds ?? projectIds ?? []
+    }
     query = ids.length > 0 ? query.in('id', ids) : query.in('id', ['00000000-0000-0000-0000-000000000000'])
   }
 
