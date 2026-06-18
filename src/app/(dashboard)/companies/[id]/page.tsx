@@ -57,6 +57,15 @@ export default function EditCompanyPage() {
     })
   }, [id])
 
+  async function handleDelete() {
+    if (!confirm(`¿Eliminar la empresa "${form.name}"? Esta acción no se puede deshacer.`)) return
+    const supabase = createClient()
+    const { error: err } = await supabase.from('companies').delete().eq('id', id)
+    if (err) { setError(err.message); return }
+    router.push('/companies')
+    router.refresh()
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -164,12 +173,17 @@ export default function EditCompanyPage() {
           {error && (
             <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>
           )}
-          <div className="flex gap-3 pt-2">
-            <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? 'Guardando...' : 'Guardar cambios'}
-            </button>
-            <button type="button" className="btn-secondary" onClick={() => router.back()}>
-              Cancelar
+          <div className="flex items-center justify-between gap-3 pt-2">
+            <div className="flex gap-3">
+              <button type="submit" className="btn-primary" disabled={saving}>
+                {saving ? 'Guardando...' : 'Guardar cambios'}
+              </button>
+              <button type="button" className="btn-secondary" onClick={() => router.back()}>
+                Cancelar
+              </button>
+            </div>
+            <button type="button" className="btn-danger py-2 text-sm" onClick={handleDelete}>
+              Eliminar empresa
             </button>
           </div>
         </form>

@@ -61,6 +61,16 @@ export default function EditProjectPage() {
     setSelectedCompanies(prev => prev.includes(cid) ? prev.filter(c => c !== cid) : [...prev, cid])
   }
 
+  async function handleDelete() {
+    if (!confirm(`¿Eliminar el proyecto "${form.name}"? Esta acción no se puede deshacer.`)) return
+    const supabase = createClient()
+    await supabase.from('project_companies').delete().eq('project_id', id)
+    const { error: err } = await supabase.from('projects').delete().eq('id', id)
+    if (err) { setError(err.message); return }
+    router.push('/projects')
+    router.refresh()
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true); setError('')
@@ -175,11 +185,16 @@ export default function EditProjectPage() {
 
         {error && <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</div>}
 
-        <div className="flex gap-3">
-          <button type="submit" className="btn-primary" disabled={saving}>
-            {saving ? 'Guardando...' : 'Guardar cambios'}
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex gap-3">
+            <button type="submit" className="btn-primary" disabled={saving}>
+              {saving ? 'Guardando...' : 'Guardar cambios'}
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => router.back()}>Cancelar</button>
+          </div>
+          <button type="button" className="btn-danger py-2 text-sm" onClick={handleDelete}>
+            Eliminar proyecto
           </button>
-          <button type="button" className="btn-secondary" onClick={() => router.back()}>Cancelar</button>
         </div>
       </form>
 

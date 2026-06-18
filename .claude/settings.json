@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; ['xlsx','jspdf','jspdf-autotable','@react-pdf/renderer','exceljs','file-saver'].forEach\\(k=>console.log\\(k, all[k]||'NOT INSTALLED'\\)\\)\")",
+      "Bash(npm install *)",
+      "Bash(node -e \"const p=require\\('./package.json'\\); const all={...p.dependencies,...p.devDependencies}; ['xlsx','jspdf','jspdf-autotable'].forEach\\(k=>console.log\\(k, all[k]||'NOT INSTALLED'\\)\\)\")",
+      "Bash(node -e \"require\\('jspdf-autotable'\\)\")",
+      "Bash(node -e \"const x = require\\('xlsx'\\); console.log\\(typeof x.utils\\)\")",
+      "Bash(node -e \"const a = require\\('jspdf-autotable'\\); console.log\\('keys:', Object.keys\\(a\\).join\\(', '\\)\\); console.log\\('type:', typeof a\\); console.log\\('default:', typeof a.default\\)\")",
+      "Bash(node -e \"const j = require\\('jspdf'\\); console.log\\('keys:', Object.keys\\(j\\).join\\(', '\\)\\); const {jsPDF} = require\\('jspdf'\\); const doc = new jsPDF\\(\\); console.log\\('jsPDF version:', jsPDF.version\\)\")",
+      "Bash(node -e ' *)"
+    ]
+  }
+}

@@ -5,6 +5,7 @@ import { formatDate, formatDateTime, formatHours } from '@/lib/utils'
 import TicketActions from '@/components/tickets/TicketActions'
 import AddComment from '@/components/tickets/AddComment'
 import AddTimeEntry from '@/components/tickets/AddTimeEntry'
+import TimeEntryList from '@/components/tickets/TimeEntryList'
 import TicketAttachments from '@/components/tickets/TicketAttachments'
 import TicketSidebarEditor from '@/components/tickets/TicketSidebarEditor'
 import ClientNotifyCheck from '@/components/tickets/ClientNotifyCheck'
@@ -138,13 +139,8 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
                 <h2 className="text-sm font-medium text-gray-700">Horas registradas</h2>
                 <span className="text-lg font-semibold text-indigo-600">{formatHours(totalHours)}</span>
               </div>
-              <div className="space-y-2 mb-4">
-                {(timeEntries as (TimeEntry & { profiles: any })[] ?? []).map(entry => (
-                  <div key={entry.id} className="text-xs text-gray-600 flex justify-between">
-                    <span className="truncate mr-2">{entry.description}</span>
-                    <span className="font-medium text-gray-800 flex-shrink-0">{formatHours(entry.hours)}</span>
-                  </div>
-                ))}
+              <div className="mb-4">
+                <TimeEntryList entries={(timeEntries as (TimeEntry & { profiles: any })[] ?? [])} />
               </div>
               <AddTimeEntry ticketId={params.id} />
             </div>

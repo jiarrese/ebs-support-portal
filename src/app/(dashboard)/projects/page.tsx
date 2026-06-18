@@ -81,7 +81,7 @@ export default async function ProjectsPage() {
                 </div>
 
                 <div className="flex items-center gap-4 flex-shrink-0">
-                  {project.billing_type === 'monthly_hours' && budget && (
+                  {project.billing_type === 'monthly_hours' && budget ? (
                     <div className="text-right min-w-[120px]">
                       <p className="text-xs text-gray-400 mb-1">
                         Horas este mes: <span className={`font-medium ${over ? 'text-red-600' : 'text-gray-700'}`}>
@@ -95,7 +95,12 @@ export default async function ProjectsPage() {
                         />
                       </div>
                     </div>
-                  )}
+                  ) : used > 0 ? (
+                    <div className="text-right">
+                      <p className="text-xs text-gray-400">Horas este mes</p>
+                      <p className="font-medium text-gray-700 text-sm">{formatHours(used)}</p>
+                    </div>
+                  ) : null}
                   {project.hourly_rate && (
                     <div className="text-right">
                       <p className="text-xs text-gray-400">Tarifa</p>
