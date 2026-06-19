@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { formatDate, formatHours } from '@/lib/utils'
+import { formatDateOnly, formatHours } from '@/lib/utils'
 import { Pencil, Trash2, X, Check } from 'lucide-react'
 
 export type TimeEntryRow = {
@@ -135,7 +135,7 @@ export default function TimeEntryTable({ entries }: { entries: TimeEntryRow[] })
           </tr>
         ) : (
           <tr key={entry.id} className="hover:bg-gray-50 group">
-            <td className="px-4 py-3 text-gray-500 text-xs">{formatDate(entry.entry_date)}</td>
+            <td className="px-4 py-3 text-gray-500 text-xs">{formatDateOnly(entry.entry_date)}</td>
             <td className="px-4 py-3 text-gray-700">
               #{entry.tickets?.number}{' '}
               <span className="text-gray-500 text-xs">{entry.tickets?.title}</span>

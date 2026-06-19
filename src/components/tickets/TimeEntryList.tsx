@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { formatDate, formatHours } from '@/lib/utils'
+import { formatDateOnly, formatHours } from '@/lib/utils'
 import { Pencil, Trash2, X, Check } from 'lucide-react'
 import type { TimeEntry } from '@/lib/types'
 
@@ -129,7 +129,7 @@ export default function TimeEntryList({ entries }: { entries: Entry[] }) {
           <div key={entry.id} className="text-xs text-gray-600 flex items-center gap-1 group py-0.5">
             <div className="flex-1 min-w-0">
               <span className="truncate block">{entry.description}</span>
-              <span className="text-[10px] text-gray-400">{formatDate(entry.entry_date)}</span>
+              <span className="text-[10px] text-gray-400">{formatDateOnly(entry.entry_date)}</span>
             </div>
             <span className="font-medium text-gray-800 flex-shrink-0">{formatHours(entry.hours)}</span>
             <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">

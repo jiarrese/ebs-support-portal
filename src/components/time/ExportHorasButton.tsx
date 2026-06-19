@@ -9,8 +9,11 @@ type Entry = TimeEntryRow
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 function fh(h: number) { return `${h.toFixed(1)}h` }
+// entry_date es un campo "date" puro (YYYY-MM-DD): parseamos los componentes a
+// mano para no correr el día por la conversión UTC→local (bug en Argentina, UTC-3).
 function fd(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString('es-AR', {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  return new Date(y, m - 1, d).toLocaleDateString('es-AR', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   })
 }
