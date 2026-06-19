@@ -3,14 +3,18 @@ import Link from 'next/link'
 import { PriorityBadge, StatusBadge } from '@/components/ui/Badge'
 import { FilterSelect } from '@/components/tickets/FilterSelect'
 import { DateRangeFilter } from '@/components/tickets/DateRangeFilter'
+import { SortableHeader, type SortDir } from '@/components/tickets/SortableHeader'
 import { formatDate, formatHours } from '@/lib/utils'
 import { Plus } from 'lucide-react'
-import type { TicketSummary } from '@/lib/types'
+import type { TicketSummary, TicketPriority, TicketStatus } from '@/lib/types'
+
+const PRIORITY_ORDER: Record<TicketPriority, number> = { critical: 0, high: 1, medium: 2, low: 3 }
+const STATUS_ORDER: Record<TicketStatus, number> = { open: 0, in_progress: 1, pending_client: 2, resolved: 3, closed: 4 }
 
 export default async function TicketsPage({
   searchParams,
 }: {
-  searchParams: { status?: string; company?: string; priority?: string; project?: string; from?: string; to?: string }
+  searchParams: { status?: string; company?: string; priority?: string; project?: string; from?: string; to?: string; sort?: string; dir?: string }
 }) {
   const supabase = await createClient()
 
@@ -70,6 +74,28 @@ export default async function TicketsPage({
     if (t.projects) projectByTicket[t.id] = t.projects.name
   })
 
+  // Orden por columna (incluye proyecto, que no viene de ticket_summary)
+  const sortField = searchParams.sort ?? 'updated_at'
+  const sortDir: SortDir = searchParams.dir === 'asc' ? 'asc' : 'desc'
+  const dirMultiplier = sortDir === 'asc' ? 1 : -1
+
+  const sortedTickets = [...(tickets as TicketSummary[] ?? [])].sort((a, b) => {
+    let cmp = 0
+    switch (sortField) {
+      case 'number':   cmp = a.number - b.number; break
+      case 'title':    cmp = a.title.localeCompare(b.title); break
+      case 'company':  cmp = a.company_name.localeCompare(b.company_name); break
+      case 'project':  cmp = (projectByTicket[a.id] ?? '').localeCompare(projectByTicket[b.id] ?? ''); break
+      case 'module':   cmp = (a.ebs_module ?? '').localeCompare(b.ebs_module ?? ''); break
+      case 'priority': cmp = PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]; break
+      case 'hours':    cmp = a.total_hours - b.total_hours; break
+      case 'status':   cmp = STATUS_ORDER[a.status] - STATUS_ORDER[b.status]; break
+      case 'updated_at':
+      default:         cmp = new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()
+    }
+    return cmp * dirMultiplier
+  })
+
   return (
     <div>
       {/* Header */}
@@ -116,19 +142,37 @@ export default async function TicketsPage({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-gray-200 bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
-              <th className="text-left px-4 py-3 font-medium">#</th>
-              <th className="text-left px-4 py-3 font-medium">Título</th>
-              <th className="text-left px-4 py-3 font-medium">Empresa / Ambiente</th>
-              <th className="text-left px-4 py-3 font-medium">Proyecto</th>
-              <th className="text-left px-4 py-3 font-medium">Módulo</th>
-              <th className="text-left px-4 py-3 font-medium">Prioridad</th>
-              <th className="text-left px-4 py-3 font-medium">Horas</th>
-              <th className="text-left px-4 py-3 font-medium">Estado</th>
-              <th className="text-left px-4 py-3 font-medium">Actualizado</th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="number" label="#" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="title" label="Título" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="company" label="Empresa / Ambiente" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="project" label="Proyecto" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="module" label="Módulo" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="priority" label="Prioridad" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="hours" label="Horas" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="status" label="Estado" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
+              <th className="text-left px-4 py-3 font-medium">
+                <SortableHeader field="updated_at" label="Actualizado" sort={sortField} dir={sortDir} searchParams={searchParams} />
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {(tickets as TicketSummary[] ?? []).map(ticket => (
+            {sortedTickets.map(ticket => (
               <tr key={ticket.id} className="hover:bg-gray-50 transition-colors">
                 <td className="px-4 py-3 text-gray-400 font-mono text-xs">#{ticket.number}</td>
                 <td className="px-4 py-3">
