@@ -44,6 +44,7 @@ export async function POST(request: Request) {
 
   const { data: invited, error: inviteError } = await admin.auth.admin.inviteUserByEmail(email, {
     data: { full_name },
+    redirectTo: new URL('/', request.url).toString(),
   })
   if (inviteError || !invited.user) {
     return NextResponse.json({ error: inviteError?.message ?? 'No se pudo invitar al usuario' }, { status: 400 })
