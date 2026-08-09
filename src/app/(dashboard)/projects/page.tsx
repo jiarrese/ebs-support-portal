@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency, formatHours } from '@/lib/utils'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 import type { BillingType } from '@/lib/types'
 
 const BILLING_LABELS: Record<BillingType, string> = {
@@ -17,10 +18,9 @@ const BILLING_COLORS: Record<BillingType, string> = {
 
 export default async function ProjectsPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+  const profile = await getCurrentProfile(supabase)
 
-  if (profile?.role !== 'consultant') redirect('/tickets')
+  if (!isOpsRole(profile?.role)) redirect('/tickets')
 
   const { data: projects } = await supabase
     .from('projects')

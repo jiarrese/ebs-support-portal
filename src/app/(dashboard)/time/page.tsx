@@ -4,6 +4,7 @@ import { formatHours } from '@/lib/utils'
 import HoursCharts from '@/components/charts/HoursCharts'
 import TimeEntryTable from '@/components/time/TimeEntryTable'
 import ExportHorasButton from '@/components/time/ExportHorasButton'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 
 export default async function TimePage({
   searchParams,
@@ -11,10 +12,9 @@ export default async function TimePage({
   searchParams: { from?: string; to?: string; company?: string; project?: string }
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+  const profile = await getCurrentProfile(supabase)
 
-  if (profile?.role !== 'consultant') redirect('/tickets')
+  if (!isOpsRole(profile?.role)) redirect('/tickets')
 
   // Período: defecto últimos 3 meses
   const now = new Date()

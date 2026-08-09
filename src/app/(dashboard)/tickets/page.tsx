@@ -6,6 +6,7 @@ import { DateRangeFilter } from '@/components/tickets/DateRangeFilter'
 import { SortableHeader, type SortDir } from '@/components/tickets/SortableHeader'
 import { formatDate, formatHours } from '@/lib/utils'
 import { Plus } from 'lucide-react'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 import type { TicketSummary, TicketPriority, TicketStatus } from '@/lib/types'
 
 const PRIORITY_ORDER: Record<TicketPriority, number> = { critical: 0, high: 1, medium: 2, low: 3 }
@@ -17,12 +18,7 @@ export default async function TicketsPage({
   searchParams: { status?: string; company?: string; priority?: string; project?: string; from?: string; to?: string; sort?: string; dir?: string }
 }) {
   const supabase = await createClient()
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('role, company_id')
-    .eq('id', (await supabase.auth.getUser()).data.user!.id)
-    .single()
+  const profile = await getCurrentProfile(supabase)
 
   let query = supabase
     .from('ticket_summary')
@@ -125,7 +121,7 @@ export default async function TicketsPage({
           { value: 'medium',   label: 'Media' },
           { value: 'low',      label: 'Baja' },
         ]} />
-        {profile?.role === 'consultant' && (
+        {isOpsRole(profile?.role) && (
           <FilterSelect name="company" label="Empresa" current={searchParams.company} options={
             (companies ?? []).map(c => ({ value: c.id, label: c.name }))
           } />

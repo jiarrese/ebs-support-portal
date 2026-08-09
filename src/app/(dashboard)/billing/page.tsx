@@ -4,6 +4,7 @@ import { formatHours, formatCurrency } from '@/lib/utils'
 import ExportCsvButton from '@/components/billing/ExportCsvButton'
 import MonthPicker from '@/components/billing/MonthPicker'
 import BillingCharts from '@/components/charts/BillingCharts'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 import type { BillingSummary, ProjectMonthlySummary } from '@/lib/types'
 
 export default async function BillingPage({
@@ -12,10 +13,10 @@ export default async function BillingPage({
   searchParams: { month?: string }
 }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+  const profile = await getCurrentProfile(supabase)
 
-  if (profile?.role !== 'consultant') redirect('/tickets')
+  const isCompanyAdmin = profile?.role === 'company_admin'
+  if (!isOpsRole(profile?.role) && !isCompanyAdmin) redirect('/tickets')
 
   // Mes seleccionado (default: mes actual en UTC para evitar drift de timezone)
   const currentMonth = searchParams.month ?? new Date().toISOString().slice(0, 7)
@@ -25,19 +26,38 @@ export default async function BillingPage({
   const lastDay = new Date(y, m, 0).getDate()
   const monthEnd = `${currentMonth}-${String(lastDay).padStart(2, '0')}`
 
-  const { data: billing } = await supabase
+  let billingQuery = supabase
     .from('billing_summary')
     .select('*')
     .gte('month', monthStart)
     .lte('month', monthEnd)
     .order('total_amount', { ascending: false })
 
-  const { data: projectBilling } = await supabase
+  if (isCompanyAdmin) billingQuery = billingQuery.eq('company_id', profile!.company_id)
+
+  const { data: billing } = await billingQuery
+
+  let projectBillingQuery = supabase
     .from('project_monthly_summary')
     .select('*')
     .gte('month', monthStart)
     .lte('month', monthEnd)
     .order('total_amount', { ascending: false })
+
+  // project_monthly_summary no tiene company_id directo — se restringe a los
+  // proyectos vinculados a la empresa del company_admin.
+  if (isCompanyAdmin) {
+    const { data: ownProjects } = await supabase
+      .from('project_companies')
+      .select('project_id')
+      .eq('company_id', profile!.company_id)
+    const projectIds = (ownProjects ?? []).map((p: any) => p.project_id)
+    projectBillingQuery = projectIds.length > 0
+      ? projectBillingQuery.in('project_id', projectIds)
+      : projectBillingQuery.in('project_id', ['00000000-0000-0000-0000-000000000000'])
+  }
+
+  const { data: projectBilling } = await projectBillingQuery
 
   const totals = (billing as BillingSummary[] ?? []).reduce(
     (acc, row) => ({ hours: acc.hours + row.total_hours, amount: acc.amount + row.total_amount }),

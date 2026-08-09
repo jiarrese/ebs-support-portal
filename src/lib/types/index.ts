@@ -1,6 +1,6 @@
 export type TicketPriority = 'critical' | 'high' | 'medium' | 'low'
 export type TicketStatus   = 'open' | 'in_progress' | 'pending_client' | 'resolved' | 'closed'
-export type UserRole       = 'consultant' | 'client'
+export type UserRole       = 'admin' | 'consultant' | 'company_admin' | 'client'
 export type InvoiceStatus  = 'draft' | 'pending' | 'invoiced' | 'paid'
 export type EbsEnv         = 'production' | 'development' | 'qa' | 'uat' | 'staging'
 

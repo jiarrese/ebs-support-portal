@@ -6,20 +6,23 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import {
   Ticket, Clock, Receipt,
-  Building2, LogOut, ServerCog, FolderKanban
+  Building2, LogOut, ServerCog, FolderKanban, Users
 } from 'lucide-react'
+import type { UserRole } from '@/lib/types'
 
-const navItems = [
+const navItems: { href: string; label: string; icon: typeof Ticket; roles?: UserRole[] }[] = [
   { href: '/tickets',   label: 'Tickets',     icon: Ticket },
-  { href: '/time',      label: 'Horas',       icon: Clock },
-  { href: '/billing',   label: 'Facturación', icon: Receipt },
-  { href: '/projects',  label: 'Proyectos',   icon: FolderKanban },
-  { href: '/companies', label: 'Empresas',    icon: Building2 },
+  { href: '/time',      label: 'Horas',       icon: Clock,       roles: ['admin', 'consultant'] },
+  { href: '/billing',   label: 'Facturación', icon: Receipt,     roles: ['admin', 'consultant', 'company_admin'] },
+  { href: '/projects',  label: 'Proyectos',   icon: FolderKanban, roles: ['admin', 'consultant'] },
+  { href: '/companies', label: 'Empresas',    icon: Building2,   roles: ['admin', 'consultant'] },
+  { href: '/users',     label: 'Usuarios',    icon: Users,       roles: ['admin', 'company_admin'] },
 ]
 
-export default function Sidebar({ role }: { role: string }) {
+export default function Sidebar({ role }: { role: UserRole }) {
   const pathname = usePathname()
   const router = useRouter()
+  const items = navItems.filter(item => !item.roles || item.roles.includes(role))
 
   async function handleLogout() {
     const supabase = createClient()
@@ -46,7 +49,7 @@ export default function Sidebar({ role }: { role: string }) {
 
         {/* Nav */}
         <nav className="flex-1 px-2 py-4 space-y-0.5">
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {items.map(({ href, label, icon: Icon }) => {
             const active = pathname.startsWith(href)
             return (
               <Link key={href} href={href}
@@ -75,7 +78,7 @@ export default function Sidebar({ role }: { role: string }) {
 
       {/* ── Bottom nav mobile ────────────────────────────────────── */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex md:hidden z-50 safe-area-bottom">
-        {navItems.slice(0, 4).map(({ href, label, icon: Icon }) => {
+        {items.slice(0, 4).map(({ href, label, icon: Icon }) => {
           const active = pathname.startsWith(href)
           return (
             <Link key={href} href={href}

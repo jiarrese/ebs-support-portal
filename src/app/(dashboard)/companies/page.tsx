@@ -2,14 +2,14 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { formatCurrency } from '@/lib/utils'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 import type { Company } from '@/lib/types'
 
 export default async function CompaniesPage() {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-  const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single()
+  const profile = await getCurrentProfile(supabase)
 
-  if (profile?.role !== 'consultant') redirect('/tickets')
+  if (!isOpsRole(profile?.role)) redirect('/tickets')
 
   const { data: companies } = await supabase
     .from('companies').select('*, ebs_environments(count)').eq('active', true).order('name')

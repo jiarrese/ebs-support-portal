@@ -9,14 +9,12 @@ import TimeEntryList from '@/components/tickets/TimeEntryList'
 import TicketAttachments from '@/components/tickets/TicketAttachments'
 import TicketSidebarEditor from '@/components/tickets/TicketSidebarEditor'
 import ClientNotifyCheck from '@/components/tickets/ClientNotifyCheck'
+import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 import type { TicketComment, TimeEntry } from '@/lib/types'
 
 export default async function TicketDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  const { data: profile } = await supabase
-    .from('profiles').select('role').eq('id', user!.id).single()
+  const profile = await getCurrentProfile(supabase)
 
   const { data: ticket } = await supabase
     .from('ticket_summary').select('*').eq('id', params.id).single()
@@ -41,7 +39,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
     .eq('ticket_id', params.id)
     .order('entry_date', { ascending: false })
 
-  const isConsultant = profile?.role === 'consultant'
+  const isConsultant = isOpsRole(profile?.role)
   const totalHours = (timeEntries ?? []).reduce((acc: number, e: any) => acc + Number(e.hours), 0)
 
   return (
