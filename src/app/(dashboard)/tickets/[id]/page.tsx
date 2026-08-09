@@ -4,7 +4,7 @@ import { PriorityBadge, StatusBadge } from '@/components/ui/Badge'
 import { formatDate, formatDateTime, formatHours } from '@/lib/utils'
 import TicketActions from '@/components/tickets/TicketActions'
 import AddComment from '@/components/tickets/AddComment'
-import AddTimeEntry from '@/components/tickets/AddTimeEntry'
+import TicketTimeSection from '@/components/tickets/TicketTimeSection'
 import TimeEntryList from '@/components/tickets/TimeEntryList'
 import TicketAttachments from '@/components/tickets/TicketAttachments'
 import TicketSidebarEditor from '@/components/tickets/TicketSidebarEditor'
@@ -140,7 +140,7 @@ export default async function TicketDetailPage({ params }: { params: { id: strin
               <div className="mb-4">
                 <TimeEntryList entries={(timeEntries as (TimeEntry & { profiles: any })[] ?? [])} />
               </div>
-              <AddTimeEntry ticketId={params.id} />
+              <TicketTimeSection ticketId={params.id} />
             </div>
           )}
         </div>

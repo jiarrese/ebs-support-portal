@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
@@ -29,7 +29,13 @@ function formatPreview(raw: string): string {
   return `${hrs}h ${mins}m`
 }
 
-export default function AddTimeEntry({ ticketId }: { ticketId: string }) {
+interface Props {
+  ticketId: string
+  prefillHours?: string | null
+  onPrefillConsumed?: () => void
+}
+
+export default function AddTimeEntry({ ticketId, prefillHours, onPrefillConsumed }: Props) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
@@ -40,6 +46,15 @@ export default function AddTimeEntry({ ticketId }: { ticketId: string }) {
   })
   const [hoursError, setHoursError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  // Precarga desde el timer (TicketTimer -> onStop) — abre el form con la
+  // duración medida, el consultor sigue completando descripción y confirma.
+  useEffect(() => {
+    if (!prefillHours) return
+    setForm(f => ({ ...f, hours: prefillHours }))
+    setOpen(true)
+    onPrefillConsumed?.()
+  }, [prefillHours, onPrefillConsumed])
 
   function handleHoursChange(value: string) {
     setForm(f => ({ ...f, hours: value }))
