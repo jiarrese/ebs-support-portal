@@ -4,6 +4,7 @@ import { formatHours } from '@/lib/utils'
 import HoursCharts from '@/components/charts/HoursCharts'
 import TimeEntryTable from '@/components/time/TimeEntryTable'
 import ExportHorasButton from '@/components/time/ExportHorasButton'
+import { FilterSelect, parseMultiFilter } from '@/components/tickets/FilterSelect'
 import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 
 export default async function TimePage({
@@ -35,18 +36,20 @@ export default async function TimePage({
   ])
 
   // Filtro por empresa y/o proyecto: pre-fetch ticket IDs
+  const companyIdsFilter = parseMultiFilter(searchParams.company)
+  const projectIdsFilter = parseMultiFilter(searchParams.project)
   let ticketFilter: string[] | null = null
 
-  if (searchParams.company || searchParams.project) {
+  if (companyIdsFilter.length || projectIdsFilter.length) {
     let companyTicketIds: string[] | null = null
     let projectTicketIds: string[] | null = null
 
-    if (searchParams.company) {
-      const { data } = await supabase.from('tickets').select('id').eq('company_id', searchParams.company)
+    if (companyIdsFilter.length) {
+      const { data } = await supabase.from('tickets').select('id').in('company_id', companyIdsFilter)
       companyTicketIds = (data ?? []).map((t: any) => t.id)
     }
-    if (searchParams.project) {
-      const { data } = await supabase.from('tickets').select('id').eq('project_id', searchParams.project)
+    if (projectIdsFilter.length) {
+      const { data } = await supabase.from('tickets').select('id').in('project_id', projectIdsFilter)
       projectTicketIds = (data ?? []).map((t: any) => t.id)
     }
 
@@ -103,35 +106,25 @@ export default async function TimePage({
       </div>
 
       {/* Filtros */}
-      <form className="flex flex-wrap gap-2 mb-5 items-end">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Desde</label>
-          <input type="month" name="from" defaultValue={fromMonth} className="input py-1.5 text-sm w-auto" />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Hasta</label>
-          <input type="month" name="to" defaultValue={toMonth} className="input py-1.5 text-sm w-auto" />
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Empresa</label>
-          <select name="company" defaultValue={searchParams.company ?? ''} className="input py-1.5 text-sm">
-            <option value="">Todas</option>
-            {(companies ?? []).map((c: any) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Proyecto</label>
-          <select name="project" defaultValue={searchParams.project ?? ''} className="input py-1.5 text-sm">
-            <option value="">Todos</option>
-            {(projects ?? []).map((p: any) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn-secondary py-1.5 text-sm">Filtrar</button>
-      </form>
+      <div className="flex flex-wrap gap-2 mb-5 items-end">
+        <form className="flex flex-wrap gap-2 items-end">
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Desde</label>
+            <input type="month" name="from" defaultValue={fromMonth} className="input py-1.5 text-sm w-auto" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Hasta</label>
+            <input type="month" name="to" defaultValue={toMonth} className="input py-1.5 text-sm w-auto" />
+          </div>
+          <button type="submit" className="btn-secondary py-1.5 text-sm">Filtrar</button>
+        </form>
+        <FilterSelect name="company" label="Empresa" current={searchParams.company} options={
+          (companies ?? []).map((c: any) => ({ value: c.id, label: c.name }))
+        } />
+        <FilterSelect name="project" label="Proyecto" current={searchParams.project} options={
+          (projects ?? []).map((p: any) => ({ value: p.id, label: p.name }))
+        } />
+      </div>
 
       {/* Gráfico */}
       <HoursCharts entries={chartEntries} />

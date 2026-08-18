@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { PriorityBadge, StatusBadge } from '@/components/ui/Badge'
-import { FilterSelect } from '@/components/tickets/FilterSelect'
+import { FilterSelect, parseMultiFilter } from '@/components/tickets/FilterSelect'
 import { DateRangeFilter } from '@/components/tickets/DateRangeFilter'
 import { SortableHeader, type SortDir } from '@/components/tickets/SortableHeader'
 import { formatDate, formatHours } from '@/lib/utils'
@@ -25,20 +25,25 @@ export default async function TicketsPage({
     .select('*')
     .order('updated_at', { ascending: false })
 
-  if (searchParams.status)   query = query.eq('status', searchParams.status)
-  if (searchParams.priority) query = query.eq('priority', searchParams.priority)
+  const statuses   = parseMultiFilter(searchParams.status)
+  const priorities = parseMultiFilter(searchParams.priority)
+  const companyIdsFilter = parseMultiFilter(searchParams.company)
+  const projectIdsFilter = parseMultiFilter(searchParams.project)
+
+  if (statuses.length)   query = query.in('status', statuses)
+  if (priorities.length) query = query.in('priority', priorities)
 
   // ticket_summary no expone company_id ni project_id directamente — filtramos via tickets
-  if (searchParams.company || searchParams.project) {
+  if (companyIdsFilter.length || projectIdsFilter.length) {
     let companyIds: string[] | null = null
     let projectIds: string[] | null = null
 
-    if (searchParams.company) {
-      const { data } = await supabase.from('tickets').select('id').eq('company_id', searchParams.company)
+    if (companyIdsFilter.length) {
+      const { data } = await supabase.from('tickets').select('id').in('company_id', companyIdsFilter)
       companyIds = (data ?? []).map((t: any) => t.id)
     }
-    if (searchParams.project) {
-      const { data } = await supabase.from('tickets').select('id').eq('project_id', searchParams.project)
+    if (projectIdsFilter.length) {
+      const { data } = await supabase.from('tickets').select('id').in('project_id', projectIdsFilter)
       projectIds = (data ?? []).map((t: any) => t.id)
     }
 
