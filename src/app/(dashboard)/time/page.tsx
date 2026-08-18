@@ -1,10 +1,10 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { formatHours } from '@/lib/utils'
+import { formatHours, parseMultiFilter } from '@/lib/utils'
 import HoursCharts from '@/components/charts/HoursCharts'
 import TimeEntryTable from '@/components/time/TimeEntryTable'
 import ExportHorasButton from '@/components/time/ExportHorasButton'
-import { FilterSelect, parseMultiFilter } from '@/components/tickets/FilterSelect'
+import { FilterSelect } from '@/components/tickets/FilterSelect'
 import { getCurrentProfile, isOpsRole } from '@/lib/auth'
 
 export default async function TimePage({

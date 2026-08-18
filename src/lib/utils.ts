@@ -2,6 +2,14 @@ export function cn(...classes: (string | undefined | false | null)[]) {
   return classes.filter(Boolean).join(' ')
 }
 
+// Filtros de lista con selección múltiple: valores separados por coma en la URL
+// (ej. ?status=open,in_progress). Vive acá (no en FilterSelect.tsx) porque ese
+// archivo es 'use client' — un Server Component no puede importar una función
+// común desde un módulo cliente.
+export function parseMultiFilter(value?: string): string[] {
+  return value ? value.split(',').filter(Boolean) : []
+}
+
 export function formatHours(hours: number) {
   const totalMinutes = Math.round(hours * 60)
   const h = Math.floor(totalMinutes / 60)

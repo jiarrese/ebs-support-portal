@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-
-export function parseMultiFilter(value?: string): string[] {
-  return value ? value.split(',').filter(Boolean) : []
-}
+import { parseMultiFilter } from '@/lib/utils'
 
 export function FilterSelect({
   name, label, current, options
