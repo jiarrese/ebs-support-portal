@@ -5,6 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
   ResponsiveContainer, CartesianGrid, Cell,
 } from 'recharts'
+import { formatHours } from '@/lib/utils'
 import type { BillingSummary, ProjectMonthlySummary } from '@/lib/types'
 
 const COLORS = ['#6366f1','#8b5cf6','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#14b8a6','#f97316','#a855f7']
@@ -80,7 +81,7 @@ export default function BillingCharts({ billing, projects }: Props) {
                 <div className="flex justify-between text-xs text-gray-600 mb-1">
                   <span>{p.name}</span>
                   <span className={over ? 'text-red-600 font-semibold' : ''}>
-                    {p.horas.toFixed(1)}h / {p.budget}h {over && '⚠'}
+                    {formatHours(p.horas)} / {formatHours(p.budget!)} {over && '⚠'}
                   </span>
                 </div>
                 <div className="w-full bg-gray-100 rounded-full h-1.5">

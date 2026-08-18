@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { Download } from 'lucide-react'
+import { formatHours as fh } from '@/lib/utils'
 import type { TimeEntryRow } from './TimeEntryTable'
 
 type Entry = TimeEntryRow
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function fh(h: number) { return `${h.toFixed(1)}h` }
 // entry_date es un campo "date" puro (YYYY-MM-DD): parseamos los componentes a
 // mano para no correr el día por la conversión UTC→local (bug en Argentina, UTC-3).
 function fd(dateStr: string) {

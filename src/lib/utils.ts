@@ -3,7 +3,10 @@ export function cn(...classes: (string | undefined | false | null)[]) {
 }
 
 export function formatHours(hours: number) {
-  return `${hours.toFixed(1)}h`
+  const totalMinutes = Math.round(hours * 60)
+  const h = Math.floor(totalMinutes / 60)
+  const m = totalMinutes % 60
+  return `${h}:${String(m).padStart(2, '0')}hs`
 }
 
 export function formatCurrency(amount: number, currency = 'USD') {
